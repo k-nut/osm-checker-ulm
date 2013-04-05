@@ -66,7 +66,8 @@ class DB_Stop(db.Model):
 
     def to_vbb_syntax(self):
         ''' Return a line that looks as if it comes from the routes.txt '''
-        return u'%i,,"%s",,%f,%f' % (self.id, self.name, self.lat, self.lon)
+        return u'%i,"%s","%s",1,1000,%f,%f' % (self.id, self.name, self.name,
+                                               self.lon, self.lat)
 
     def __repr__(self):
         return '<Stop %r>' % self.name
@@ -84,12 +85,13 @@ class VBB_Stop():
     ''' Takes a line from the stops.txt and returns a VBB_Stop object '''
     def __init__(self, line_from_stops_txt):
         #since csvreader doesnt understand unicode we'll just use good ol regex
-        pattern = re.compile('(\d*),,"(.*)",,(\d*\.\d*),(\d*\.\d*)')
+        pattern = re.compile('(\d*),"(.*)",".*",(\d),.*,(\d*\.\d*),(\d*\.\d*)')
         fields = re.findall(pattern, line_from_stops_txt)[0]
         self.stop_id = int(fields[0])
         self.name = fields[1]
-        self.lat = float(fields[2])
+        self.ismainstation = fields[2]
         self.lon = float(fields[3])
+        self.lat = float(fields[4])
         self.turbo_url = "http://overpass-turbo.eu/map.html?Q=" + \
                             self.create_payload()["data"].replace("out skel;", "out;")
 
