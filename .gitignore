@@ -2,4 +2,3 @@
 *.pyc
 *.log
 stops.db
-data/*
