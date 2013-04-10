@@ -8,6 +8,7 @@ import datetime
 import logging
 import sys
 from math import log10
+import codecs
 
 from models import DB_Stop, DB_Train, VBB_Stop, Bvg_line, app, db
 from helpers import print_success, print_failure
@@ -29,7 +30,7 @@ def main():
 
 
 @app.route("/city/<city>/page/<number>")
-def pagination(number, city="Berlin"):
+def pagination(number, city="Ulm"):
     """ Render only 100 stops for better overview"""
     number = int(number)
     start = (number-1)*50
@@ -137,7 +138,7 @@ def recheck(id, from_cm_line=False):
     ''' Rerun the checks for a stop and update the db'''
     stop = DB_Stop.query.filter_by(id=id).first()
     old_matches = stop.matches
-    stop.matches = VBB_Stop(stop.to_vbb_syntax()).is_in_osm()
+    stop.matches = VBB_Stop(stop.to_vbb_syntax(), stop.exception).is_in_osm()
     stop.last_run = datetime.datetime.now().replace(microsecond=0)
     db.session.commit()
     if not from_cm_line:
@@ -176,6 +177,19 @@ def api_stops():
     return jsonify(stops=all_stops)
 
 
+@app.route('/exceptions', methods=["get", "post"])
+def match_exceptions():
+    if request.method == "POST":
+        if request.form["id"] and request.form["string"]:
+            stop = DB_Stop.query.filter_by(id=int(request.form["id"])).first()
+            stop.exception = request.form["string"]
+            db.session.commit()
+            return redirect(url_for("match_exceptions"))
+    all_stops = DB_Stop.query.all()
+    exceptions = [Stop for Stop in all_stops if Stop.exception]
+    return render_template("exceptions.html", all_stops=all_stops, exceptions=exceptions)
+
+
 @app.route('/robots.txt')
 def serve_static():
     return send_from_directory(app.static_folder, request.path[1:])
@@ -200,6 +214,7 @@ def get_trains():
 
 
 def recheck_batch(Stops):
+    ids = [Stop.id for Stop in Stops]
     total = 0
     number_of_stops = len(Stops)
     # get the number of digits we want to show
@@ -234,13 +249,14 @@ def get_stops():
     ''' The initial query to set up the stop db '''
     all_stops = DB_Stop.query.all()
     all_ids = [stop.id for stop in all_stops]
-    url = "http://datenfragen.de/openvbb/GTFS_VBB_Okt2012/stops.txt"
+    url = "http://www.swu.de/fileadmin/gtfs/stops.txt"
     req = requests.get(url)
+    req.encoding = "utf-8"
     text = req.text.split("\n")[1:]
-    for line in text[35:]:  # start in line 35 to exlclude stops in Poland
+    for line in text:  # start in line 35 to exlclude stops in Poland
         if len(line) > 1:
             Stop = VBB_Stop(line)
-            if Stop.stop_id not in all_ids:
+            if Stop.stop_id not in all_ids and int(Stop.ismainstation) != 0:
                 feedback = Stop.is_in_osm()
                 if feedback > 0:
                     print_success(Stop.name + ": " + str(feedback))
