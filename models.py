@@ -48,6 +48,7 @@ class DB_Stop(db.Model):
     lat = db.Column(db.Float)
     lon = db.Column(db.Float)
     landkreis = db.Column(db.String)
+    exception = db.Column(db.String)
 
     def __init__(self, vbb_id, name, lat, lon, matches):
         self.id = vbb_id
@@ -83,7 +84,7 @@ class DB_Stop(db.Model):
 
 class VBB_Stop():
     ''' Takes a line from the stops.txt and returns a VBB_Stop object '''
-    def __init__(self, line_from_stops_txt):
+    def __init__(self, line_from_stops_txt, exception=None):
         #since csvreader doesnt understand unicode we'll just use good ol regex
         pattern = re.compile('(\d*),"(.*)",".*",(\d),.*,(\d*\.\d*),(\d*\.\d*)')
         fields = re.findall(pattern, line_from_stops_txt)[0]
@@ -92,6 +93,7 @@ class VBB_Stop():
         self.ismainstation = fields[2]
         self.lon = float(fields[3])
         self.lat = float(fields[4])
+        self.exception = exception
         self.turbo_url = "http://overpass-turbo.eu/map.html?Q=" + \
                             self.create_payload()["data"].replace("out skel;", "out;")
 
@@ -138,6 +140,10 @@ class VBB_Stop():
             s_station = "S" + stop_name
             u_station = "U" + stop_name
             short_name = s_station + "|" + u_station
+
+        if self.exception:
+            short_name = short_name + "|" + self.exception
+
         return short_name
 
     def create_payload(self):
