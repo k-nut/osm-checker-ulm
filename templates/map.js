@@ -5,10 +5,10 @@ function initmap() {
 	// create the tile layer with correct attribution
 	var osmUrl='http://{s}.tile2.opencyclemap.org/transport/{z}/{x}/{y}.png';
 	var osmAttrib='Map data © OpenStreetMap contributors';
-	var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 18, attribution: osmAttrib});
+	var osm = new L.TileLayer(osmUrl, {minZoom: 1, maxZoom: 18, attribution: osmAttrib});
 
 	// start the map in South-East England
-	map.setView(new L.LatLng(52.52, 13.41),13);
+	map.setView(new L.LatLng(48.40, 10.00),13);
 	map.addLayer(osm);
 }
 

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang=de>
 	<head>
-		<title> OSM-VBB-Checker |{% block title %} Haltestellen in {{ city }} {% endblock %} </title>
+		<title> OSM-SWU-Checker |{% block title %} Haltestellen in {{ city }} {% endblock %} </title>
 		<meta name="viewport" content="width=device-width">
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 		<!--	<link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -106,7 +106,7 @@
 					</a>
 
 					<a class="brand" href="/">
-						<span class="hidden-phone">Berliner &amp; Brandenburger</span>
+						<span class="hidden-phone">Ulmer</span>
 						OSM-Haltestellen Validator
 					</a>
 					<div class="nav-collapse collapse">
@@ -128,8 +128,8 @@
 				<div class=row-fluid>
 					<div class=span12>
 						<p> Prüft auf Basis der Haltestellendaten von
-						<a href="http://datenfragen.de/openvbb/GTFS_VBB_Okt2012/stops.txt">
-							http://datenfragen.de/openvbb/GTFS_VBB_Okt2012/stops.txt
+						<a href="http://www.swu.de/fileadmin/gtfs/stops.txt">
+							http://www.swu.de/fileadmin/gtfs/stops.txt
 						</a>, ob diese in OSM sind oder nicht. Sollten sie es nicht sein,
 						kann das entweder daran liegen, dass dieses Tool sie schlicht nicht erkennt,
 						oder aber daran, dass sie wirklich nicht in OSM sind. Das sollten wir ändern!
@@ -199,11 +199,11 @@
 
 				<table class=table>
 					<tr>
-						<th> Name(VBB) </th>
-						<th> VBB_id </th>
+						<th> Name(SWU) </th>
+						<th> SWU_id </th>
 						<th> Treffer in OSM </th>
-						<th> Lat (VBB) </th>
-						<th> Lon (VBB) </th>
+						<th> Lat (SWU) </th>
+						<th> Lon (SWU) </th>
 						<th> Zuletz geprueft </th>
 						<th> Auf OSM Karte </th>
 						<th> Nochmal prüfen </th>
@@ -221,7 +221,7 @@
 							<th> {{ stop.lat }}</th>
 							<th> {{ stop.lon }}</th>
 							<th> {{ stop.last_run }}</th>
-							<th> <a href="#" onclick="radiusmap({{ stop.lat }}, {{ stop.lon }});">Position laut VBB</a></th>
+							<th> <a href="#" onclick="radiusmap({{ stop.lat }}, {{ stop.lon }});">Position laut SWU</a></th>
 							<th> <a href="/recheck/{{ stop.id }}">Nochmal prüfen?</a></th>
 							<th> <a href="{{ stop.turbo_url }}" target="_blank"> Karte </a> </th>
 						</tr>
