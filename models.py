@@ -133,6 +133,9 @@ class VBB_Stop():
         if "str." in short_name:
             short_name = short_name + "|" + short_name.replace(u"str.", u"straße")
 
+        if "-" in short_name:
+            short_name = short_name + "|" + short_name.replace("-", " ")
+
         if "S+U" in short_name:
             # Stops Like "S+U Wedding" are in OSM as "S Wedding" and "U Wedding"
             # So we split it up and check for both
@@ -160,6 +163,13 @@ class VBB_Stop():
         r = requests.get("http://overpass-api.de/api/interpreter", params=payload)
         this_json = json.loads(r.text)
         stations = this_json.get("elements")
+        if len(stations) == 0:
+            special_payload = {"data": '[output:json];node(around:250,%f,%f)["highway"="bus_stop"];rel(bn)["name"="%s"];out;'
+                               % (self.lat, self.lon, short_name)}
+            rs = requests.get("http://overpass-api.de/api/interpreter",
+                             params=special_payload)
+            special_json = json.loads(rs.text)
+            stations = special_json.get("elements")
         return len(stations)
 
 
